@@ -1,0 +1,20 @@
+- hosts: localhost
+  gather_facts: false
+  tasks:
+    - name: Read objects
+      command: "cat {{ item }}"
+      register: objs
+      loop:
+        - deployment.yaml
+        - configmap.yaml
+        - secret.yaml
+
+    - debug:
+        msg:
+          - "kind: {{ obj.kind }}"
+          - "name: {{ obj.metadata.name }}"
+      vars:
+        obj: "{{ item.stdout | from_yaml }}"
+      loop: "{{ objs.results }}"
+      loop_control:
+        label: "{{ item.item }}"
